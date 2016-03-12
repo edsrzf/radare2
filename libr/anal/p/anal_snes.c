@@ -219,6 +219,60 @@ static int snes_anop(RAnal *anal, RAnalOp *op, ut64 addr, const ut8 *data, int l
 	return op->size;
 }
 
+static set_reg_profile(RAnal *anal) {
+	const char *p = NULL;
+	if (anal->bits == 8) {
+		p =
+			"=PC	pc\n"
+			"=SP	s\n"
+			"gpr	a	.8	0	0\n"
+			"gpr	x	.8	1	0\n"
+			"gpr	y	.8	2	0\n"
+			"gpr	db	.8	3	0\n"
+			"gpr	d	.8	4	0\n"
+			"gpr	pb	.8	5	0\n"
+			"gpr	s	.16	6	0\n"
+			// PC is actually 24-bit, but that's not supported
+			"gpr	pc	.32	8	0\n"
+			"gpr	p	.16	12	0\n"
+			"flg	cf	.1	12.0	0\n"
+			"flg	zf	.1	12.1	0\n"
+			"flg	if	.1	12.2	0\n"
+			"flg	df	.1	12.3	0\n"
+			"flg	xf	.1	12.4	0\n"
+			"flg	mf	.1	12.5	0\n"
+			"flg	vf	.1	12.6	0\n"
+			"flg	nf	.1	12.7	0\n"
+			"flg	ef	.1	12.8	0\n";
+			// remaining p bits unused
+	} else {
+		p =
+			"=PC	pc\n"
+			"=SP	s\n"
+			"gpr	a	.16	0	0\n"
+			"gpr	x	.16	2	0\n"
+			"gpr	y	.16	4	0\n"
+			"gpr	db	.8	6	0\n"
+			"gpr	d	.8	7	0\n"
+			"gpr	pb	.8	8	0\n"
+			"gpr	s	.16	9	0\n"
+			// PC is actually 24-bit, but that's not supported
+			"gpr	pc	.32	11	0\n"
+			"gpr	p	.16	15	0\n"
+			"flg	cf	.1	15.0	0\n"
+			"flg	zf	.1	15.1	0\n"
+			"flg	if	.1	15.2	0\n"
+			"flg	df	.1	15.3	0\n"
+			"flg	xf	.1	15.4	0\n"
+			"flg	mf	.1	15.5	0\n"
+			"flg	vf	.1	15.6	0\n"
+			"flg	nf	.1	15.7	0\n"
+			"flg	ef	.1	15.8	0\n";
+			// remaining p bits unused
+	}
+	return r_reg_set_profile_string (anal->reg, p);
+}
+
 struct r_anal_plugin_t r_anal_plugin_snes = {
 	.name = "snes",
 	.desc = "SNES analysis plugin",
@@ -226,6 +280,7 @@ struct r_anal_plugin_t r_anal_plugin_snes = {
 	.arch = "snes",
 	.bits = 16,
 	.op = &snes_anop,
+	.set_reg_profile = &set_reg_profile,
 };
 
 #ifndef CORELIB
